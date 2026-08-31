@@ -15,23 +15,27 @@ public class LoginSteps {
 
     @Given("The user navigates to the login page")
     public void the_user_navigates_to_the_login_page() {
-        // Driver initialization optimized for framework context
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*");
         options.addArguments("--start-maximized");
         
         driver = new ChromeDriver(options);
         driver.get("https://herokuapp.com");
-        
-        // Initializing the Page Object model instance
         loginPage = new LoginPage(driver);
     }
 
+    // Keep Method 1: For your standard Login.feature
     @When("The user enters an invalid username and password")
     public void the_user_enters_an_invalid_username_and_password() {
-        // Utilizing your encapsulated page actions
         loginPage.enterUsername("invalidUser");
         loginPage.enterPassword("wrongPassword123");
+    }
+
+    // Append Method 2: For your data-driven LoginDataDriven.feature
+    @When("The user enters an username {string} and password {string}")
+    public void the_user_enters_an_username_and_password(String username, String password) {
+        loginPage.enterUsername(username);
+        loginPage.enterPassword(password);
     }
 
     @When("Clicks on the submit button")
@@ -44,9 +48,8 @@ public class LoginSteps {
         try {
             String actualError = loginPage.getErrorMessageText();
             Assert.assertTrue(actualError.contains("Your username is invalid!"), 
-                "[CUCUMBER ERROR] The validation banner did not match the expected authentication failure string.");
+                "[CUCUMBER ERROR] The validation banner did not match the expected string.");
         } finally {
-            // Clean hook termination to prevent hanging browser memory allocations
             if (driver != null) {
                 driver.quit();
             }
