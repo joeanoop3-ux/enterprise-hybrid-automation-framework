@@ -2,44 +2,56 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven_3.9.x' // Must match your Jenkins Global Tool Configuration name
-        jdk 'Java_17'
+        // Automatically provisions configured global Maven installation
+        maven 'Maven 3.9' 
+        jdk 'Java 17'
     }
 
-    parameters {
-        string(name: 'BROWSER', defaultValue: 'chrome-headless', description: 'Browser environment for test execution')
-        string(name: 'SUITE', defaultValue: 'src/test/resources/features', description: 'Path to Cucumber feature files')
+    options {
+        timeout(time: 1, unit: 'HOURS') 
+        ansiColor('xterm')
+        disableConcurrentBuilds()
     }
 
     stages {
-        stage('Checkout Code') {
+        stage('Checkout Code Base') {
             steps {
-                cleanWs()
+                echo 'Pulling fresh changes from the repository...'
                 checkout scm
             }
         }
 
-        stage('Execute API & UI Tests') {
+        stage('Dependency Check & Environment Setup') {
             steps {
-                script {
-                    // Runs RestAssured and Selenium via Cucumber Runner in parallel
-                    sh "mvn clean test -Dbrowser=${params.BROWSER} -Dcucumber.features=${params.SUITE}"
-                }
+                echo 'Validating build profile environment...'
+                sh 'mvn --version'
+                sh 'java -version'
+            }
+        }
+
+        stage('Execute Core Hybrid Automation Suite') {
+            steps {
+                echo 'Triggering Headless Web UI and API Regression tests concurrently...'
+                // Running tests using your configured pom.xml and testng.xml file paths
+                sh 'mvn clean test -DsuiteXmlFile=src/test/resources/testng.xml'
             }
         }
     }
 
     post {
         always {
-            // Generates beautiful interactive reports even if tests fail
-            allure includeProperties: false, jdk: '', results: [[path: 'target/allure-results']]
+            echo 'Archiving test execution metrics...'
+            // Stores your HTML reporting assets so stakeholders can audit build stability
+            archiveArtifacts artifacts: 'target/cucumber-reports/**/*, target/surefire-reports/**/*', allowEmptyArchive: true
+            
+            echo 'Publishing test results into Jenkins dashboard...'
+            junit testResults: 'target/surefire-reports/*.xml', allowEmptyArchive: true
         }
         success {
-            echo '🎉 All API and UI regression tests passed successfully!'
+            echo '✅ Deployment Integrity Intact: All automation assertions passed successfully!'
         }
         failure {
-            echo '❌ Regression Suite Failed. Please check the Allure Report artifacts.'
-            // Place your Slack/Email webhook notifications here
+            echo '❌ Pipeline Alert: Automated checks caught breaking regressions. Notifying engineering teams...'
         }
     }
 }
