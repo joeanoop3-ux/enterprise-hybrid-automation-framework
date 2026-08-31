@@ -4,45 +4,77 @@
          xsi:schemaLocation="http://apache.org http://apache.org">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.automation.engine</groupId>
-    <artifactId>enterprise-hybrid-framework</artifactId>
+    <groupId>com.enterprise.automation</groupId>
+    <artifactId>enterprise-hybrid-automation-framework</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <selenium.version>4.18.1</selenium.version>
+        <testng.version>7.9.0</testng.version>
+        <cucumber.version>7.15.0</cucumber.version>
+        <restassured.version>5.4.0</restassured.version>
     </properties>
 
     <dependencies>
-        <!-- Selenium WebDriver -->
+        <!-- Selenium WebDriver Core -->
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
-            <version>4.18.1</version>
+            <version>${selenium.version}</version>
         </dependency>
-        <!-- Cucumber JVM -->
+
+        <!-- TestNG Execution Engine -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>${testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Cucumber BDD Core Dependencies -->
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-java</artifactId>
-            <version>7.15.0</version>
+            <version>${cucumber.version}</version>
         </dependency>
         <dependency>
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-testng</artifactId>
-            <version>7.15.0</version>
+            <version>${cucumber.version}</version>
         </dependency>
-        <!-- REST Assured -->
+
+        <!-- RestAssured Backend API Automation -->
         <dependency>
-            <groupId>io.rest-assured</groupId>
+            <groupId>io.restassured</groupId>
             <artifactId>rest-assured</artifactId>
-            <version>5.4.0</version>
+            <version>${restassured.version}</version>
+            <scope>test</scope>
         </dependency>
-        <!-- WebDriverManager -->
+
+        <!-- Extent Reports for Rich Test Reporting -->
         <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>5.6.3</version>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>5.1.1</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven Surefire Plugin to execute TestNG suites -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
